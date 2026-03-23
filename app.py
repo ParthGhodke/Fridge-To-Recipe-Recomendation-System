@@ -17,7 +17,7 @@ st.write("Turn your available ingredients into delicious recipes!")
 # -------------------------------
 @st.cache_data
 def load_data():
-    df = pd.read_csv("recipes_cleaned.csv")
+    df = pd.read_csv("recipes_small.csv")
     
     # Safe conversion function
     def safe_convert(x):
@@ -90,21 +90,11 @@ if st.button("🔍 Recommend Recipes"):
             st.write(row['ingredients'])
             
             st.markdown("**👨‍🍳 Steps:**")
-            
-            instructions = row['instructions']
 
-            # Fix format
-            if isinstance(instructions, str):
-                try:
-                    instructions = ast.literal_eval(instructions)
-                except:
-                    instructions = [instructions]
+steps = row['instructions'].split("||")
 
-            if isinstance(instructions, list) and len(instructions) > 0:
-                for step in instructions:
-                    st.write("•", step)
-            else:
-                st.write("No steps available")
+for i, step in enumerate(steps, 1):
+    st.write(f"{i}. {step}")
             
             # ✅ CORRECT POSITION
             st.markdown("---")
