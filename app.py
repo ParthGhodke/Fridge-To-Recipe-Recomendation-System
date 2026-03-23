@@ -90,11 +90,11 @@ if st.button("🔍 Recommend Recipes"):
             st.write(row['ingredients'])
             
             st.markdown("**👨‍🍳 Steps:**")
-
-steps = row['instructions'].split("||")
-
-for i, step in enumerate(steps, 1):
-    st.write(f"{i}. {step}")
             
-            # ✅ CORRECT POSITION
+            steps = row['instructions'].split("||")
+            
+            for i, step in enumerate(steps, 1):
+                st.write(f"{i}. {step}")
+            
+            # ✅ CORRECT INDENT (same level as st.subheader)
             st.markdown("---")
