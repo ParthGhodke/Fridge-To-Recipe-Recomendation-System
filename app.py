@@ -73,28 +73,34 @@ user_input = st.text_input("🧂 Enter ingredients (e.g. tomato onion cheese)")
 # Show Results
 # -------------------------------
 if st.button("🔍 Recommend Recipes"):
-    
     if user_input.strip() == "":
         st.warning("⚠️ Please enter some ingredients!")
-    
     else:
         results = recommend_recipes(user_input)
-        
+
         st.success("✅ Top Recipes for You:")
-        
+
         for index, row in results.iterrows():
-            
+
             st.subheader(f"🍽️ {row['recipe_name']}")
-            
+
             st.markdown("**🧂 Ingredients:**")
             st.write(row['ingredients'])
-            
+
             st.markdown("**👨‍🍳 Steps:**")
-            
-            steps = row['instructions'].split("||")
-            
+
+            instructions = row['instructions']
+
+            # Handle all formats safely
+            if isinstance(instructions, list):
+                steps = instructions
+            elif isinstance(instructions, str):
+                steps = instructions.split("||")
+            else:
+                steps = []
+
             for i, step in enumerate(steps, 1):
                 st.write(f"{i}. {step}")
-            
-            # ✅ CORRECT INDENT (same level as st.subheader)
+
+            # ✅ PERFECT INDENT (same level as st.subheader)
             st.markdown("---")
