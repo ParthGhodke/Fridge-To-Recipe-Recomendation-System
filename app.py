@@ -89,8 +89,23 @@ if st.button("🔍 Recommend Recipes"):
             st.markdown("**🧂 Ingredients:**")
             st.write(row['ingredients'])
             
+
             st.markdown("**👨‍🍳 Steps:**")
-            for step in row['instructions']:
-                st.write("•", step)
+
+instructions = row['instructions']
+
+# If string → convert to list
+if isinstance(instructions, str):
+    try:
+        instructions = ast.literal_eval(instructions)
+    except:
+        instructions = [instructions]  # fallback
+
+# Display steps
+if isinstance(instructions, list) and len(instructions) > 0:
+    for step in instructions:
+        st.write("•", step)
+else:
+    st.write("No steps available")
             
             st.markdown("---")
