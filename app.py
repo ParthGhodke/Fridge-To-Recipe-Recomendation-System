@@ -19,12 +19,21 @@ st.write("Turn your available ingredients into delicious recipes!")
 def load_data():
     df = pd.read_csv("recipes_cleaned.csv")
     
-    # Convert string list back to list
-    df['instructions'] = df['instructions'].apply(ast.literal_eval)
+    # Safe conversion function
+    def safe_convert(x):
+        try:
+            if isinstance(x, list):
+                return x
+            return ast.literal_eval(x)
+        except:
+            return []  # fallback if error
+    
+    # Apply safe conversion
+    df['instructions'] = df['instructions'].apply(safe_convert)
     
     df = df.fillna('')
     
-    # Reduce size for faster performance
+    # Reduce size for speed
     df = df.sample(5000, random_state=42)
     
     return df
