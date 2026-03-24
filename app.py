@@ -18,24 +18,27 @@ st.write("Turn your available ingredients into delicious recipes!")
 @st.cache_data
 def load_data():
     df = pd.read_csv("recipes_small.csv")
-    
-    # Safe conversion function
-    def safe_convert(x):
-        try:
-            if isinstance(x, list):
-                return x
-            return ast.literal_eval(x)
-        except:
-            return []  # fallback if error
-    
-    # Apply safe conversion
-    df['instructions'] = df['instructions'].apply(safe_convert)
-    
+
+    # Clean instructions (VERY IMPORTANT)
+    def clean_steps(x):
+        if isinstance(x, list):
+            return x
+        if isinstance(x, str) and "||" in x:
+            return x.split("||")
+        if isinstance(x, str):
+            try:
+                return ast.literal_eval(x)
+            except:
+                return [x]
+        return []
+
+    df['instructions'] = df['instructions'].apply(clean_steps)
+
     df = df.fillna('')
     
     # Reduce size for speed
     df = df.sample(5000, random_state=42)
-    
+
     return df
 
 df = load_data()
@@ -56,16 +59,13 @@ vectorizer, tfidf_matrix = create_model(df)
 # -------------------------------
 def recommend_recipes(user_input, top_n=5):
     user_input = user_input.lower()
-    
     user_vec = vectorizer.transform([user_input])
     similarity = cosine_similarity(user_vec, tfidf_matrix)
-    
     top_indices = similarity[0].argsort()[-top_n:][::-1]
-    
     return df.iloc[top_indices]
 
 # -------------------------------
-# UI Input
+# User Input
 # -------------------------------
 user_input = st.text_input("🧂 Enter ingredients (e.g. tomato onion cheese)")
 
@@ -88,19 +88,7 @@ if st.button("🔍 Recommend Recipes"):
             st.write(row['ingredients'])
 
             st.markdown("**👨‍🍳 Steps:**")
-
-            instructions = row['instructions']
-
-            # Handle all formats safely
-            if isinstance(instructions, list):
-                steps = instructions
-            elif isinstance(instructions, str):
-                steps = instructions.split("||")
-            else:
-                steps = []
-
-            for i, step in enumerate(steps, 1):
+            for i, step in enumerate(row['instructions'], 1):
                 st.write(f"{i}. {step}")
 
-            # ✅ PERFECT INDENT (same level as st.subheader)
             st.markdown("---")
